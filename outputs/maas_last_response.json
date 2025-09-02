@@ -1,0 +1,38 @@
+{
+  "phase": "ok",
+  "attempt": 0,
+  "http_status": 200,
+  "json": {
+    "id": "chatcmpl-b39bb31fe5334d6c8727c2679cb5d9e6",
+    "object": "chat.completion",
+    "created": 1756783433,
+    "model": "/maas/kimi/Kimi-K2-Instruct",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "关键结论（面向业务）\n1. Column1 与 Column2 的聚合柱形图显示，Column1 值≈0.37 和 0.98 时，Column2 的累计贡献最大（0.821、0.799），提示这两个区间是 Column2 产出的“高杠杆点”。  \n2. 各列均值与中位数接近，且极差较大（0.02–0.98），说明样本内部波动显著，但无明显偏态，整体呈均匀分布。  \n3. Column4 的均值（0.583）显著高于其他列，可能代表该指标天然基准较高或量纲不同，需确认业务含义。  \n4. Column5 的均值与中位数均最低（0.370、0.327），且最小值仅 0.005，提示该指标存在低值异常或业务场景差异。\n\n可执行建议\n1. 针对 Column1≈0.37 与 0.98 的高贡献区间，优先投入资源做 A/B 测试，验证提升 Column1 能否线性放大 Column2 的产出。  \n2. 对 Column5 的极低值做分箱分析，结合业务背景排查是否为异常记录或特殊场景，必要时剔除或单独建模。  \n3. 统一量纲：对五列做标准化（Z-score 或 Min-Max）后再比较，避免 Column4 因单位差异被误判为“表现最好”。\n\n数据局限与注意事项\n- 样本量仅 20 条，统计功效低，结论需谨慎外推。  \n- 列名未给出业务含义，所有解读基于数值假设，需与领域专家确认指标定义及量纲。",
+          "refusal": null,
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": [],
+          "reasoning_content": null
+        },
+        "logprobs": null,
+        "finish_reason": "stop",
+        "stop_reason": 163586
+      }
+    ],
+    "service_tier": null,
+    "system_fingerprint": "lanyun",
+    "usage": {
+      "prompt_tokens": 443,
+      "completion_tokens": 406,
+      "total_tokens": 849
+    },
+    "prompt_logprobs": null,
+    "kv_transfer_params": null
+  }
+}

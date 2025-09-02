@@ -552,6 +552,7 @@ def generate_ai_insights(
     cfg = load_maas_config(DEFAULT_BASE_URL)
     api_key = cfg.get("api_key") or ""
     model = cfg.get("model") or "Kimi-K2-instruct"
+    maas_err = None
     if api_key:
         try:
             client = LanyunMaaSClient(api_key=api_key, base_url=cfg.get("base_url", DEFAULT_BASE_URL))
@@ -572,9 +573,9 @@ def generate_ai_insights(
                     "insights": content.strip(),
                     "used_fallback": False,
                 }
-        except Exception:
+        except Exception as e:
+            maas_err = f"{e.__class__.__name__}: {e}"
             # fall through to fallback
-            pass
 
     # Fallback heuristic insights
     bullets = []
@@ -627,6 +628,7 @@ def generate_ai_insights(
         "provider": "fallback",
         "insights": text,
         "used_fallback": True,
+        "maas_error": maas_err,
     }
 
 @mcp.tool()
