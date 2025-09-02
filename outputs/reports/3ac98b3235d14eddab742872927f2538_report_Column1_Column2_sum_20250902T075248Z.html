@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>数据分析报告 - sum(Column2) by Column1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; background:#0b0f19; color:#e6e8f1; }
+    h1,h2 { font-family: Montserrat, Inter, sans-serif; }
+    .card { background:#11162a; padding:16px; border-radius:12px; border:1px solid #1a2340; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+    .grid { display:grid; grid-template-columns: 1fr; gap:16px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1.2fr 1fr; } }
+    a, code { color:#80b3ff; }
+    .meta small { color:#9aa4c2; }
+  </style>
+</head>
+<body>
+  <h1>数据分析报告</h1>
+  <section class="card">
+    <h2>数据概览</h2>
+    <p>文件: <code>data\3ac98b3235d14eddab742872927f2538.csv</code></p>
+    <p>样本行数: <b>20</b></p>
+    <p>列：</p>
+    <ul><li><code>Column1</code> <small>(float64)</small></li><li><code>Column2</code> <small>(float64)</small></li><li><code>Column3</code> <small>(float64)</small></li><li><code>Column4</code> <small>(float64)</small></li><li><code>Column5</code> <small>(float64)</small></li></ul>
+    <p>数值列统计（节选）</p><ul><li><b>Column1</b>: min=0.0391877922543206, median=0.36411653561737506, mean=0.448220974118993, max=0.978618342232764</li><li><b>Column2</b>: min=0.0202183974403257, median=0.4959496275572006, mean=0.4822058205201568, max=0.8209932298479351</li><li><b>Column3</b>: min=0.0201075461874935, median=0.514761961673432, mean=0.48015191282157466, max=0.9883738380592262</li><li><b>Column4</b>: min=0.0602254716292698, median=0.5903960076506126, mean=0.5830833844347382, max=0.9636627605010292</li><li><b>Column5</b>: min=0.004695476192547, median=0.32655843194491185, mean=0.3703071056671255, max=0.929296197576214</li></ul>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>可视化</h2>
+      <p>sum(Column2) by <code>Column1</code>（分类数：20）</p>
+      <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="ed413ddf-8970-43b6-9e53-984eda5248d7" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("ed413ddf-8970-43b6-9e53-984eda5248d7")) {                    Plotly.newPlot(                        "ed413ddf-8970-43b6-9e53-984eda5248d7",                        [{"hovertemplate":"Column1=%{x}\u003cbr\u003eColumn2=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"","orientation":"v","showlegend":false,"x":{"dtype":"f8","bdata":"1f1EHGwQpD\u002fv0r0UG062P6t6aIUdWcQ\u002fOr\u002fsT8qlxD9HeV2G0HLHP82bfal67tA\u002fUF4SNCT80D\u002fwNgsf1lnUP5kpEwhvY9Q\u002f0I3nbC0C1z\u002fi2kx1MZnXP6gSX1bhj+E\u002f\u002flgnTA0\u002f4j9eRJmEq8PjP\u002f\u002f8U6Y7euQ\u002fW5uJISqr5D\u002fsAq+M3XXlPyipP7\u002fPVek\u002fJkWD6yc\u002f7z+B+eRp11DvPw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"kDHWX4IZ0j\u002faiSKvIbSUPyWSl5WLQbw\u002fktBTbkPm5D\u002fVFjbGtsTiP62a8rqFxug\u002fbLmqs3K+4D\u002fVi1jvSIPaP+yOXgNtW+U\u002fhwI431T42z+55Q2Yk0XqPzOHYM\u002fU4uY\u002fRf4SFQwS3D83qOPESZbjP6gUmYhmWcI\u002f0llhym0B3D\u002fE\u002fbrV0O3KPyJ\u002f6wm17OA\u002f8LUTnGH+3T\u002fyITT7tJLpPw=="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Column1"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Column2"}},"legend":{"tracegroupgap":0},"title":{"text":"sum(Column2) by Column1"},"margin":{"l":40,"r":20,"t":60,"b":40},"hovermode":"x unified"},                        {"responsive": true}                    )                };            </script>        </div>
+    </section>
+    
+        <section>
+          <h2>AI 洞察</h2>
+          <div class='meta'><small>provider:lanyun-maas | model:/maas/kimi/Kimi-K2-Instruct | used_fallback:False</small></div>
+          <pre style="white-space:pre-wrap;word-wrap:break-word;background:#0b1021;color:#e6e8f1;padding:12px;border-radius:8px;">关键结论（面向业务）
+1. Column1 与 Column2 的线性趋势显示：当 Column1 值升高时，Column2 的累计值同步抬升，二者存在正向关联，可用于预测或联动运营。  
+2. Column4 的均值（0.583）明显高于其余列（0.37–0.48），且波动区间较窄，推测该指标对整体贡献度最大，可作为核心 KPI 监控。  
+3. Column5 的极差最大（0.925）且均值最低（0.370），离散度高，存在极端低值，需排查异常或业务断点。  
+4. 样本量仅 20 条，所有指标的分布形态尚未稳定，当前结论仅适用于小范围试点场景。
+
+可执行建议
+1. 立即对 Column5 的最低 5% 记录做根因分析，定位导致低值的操作或用户群体。  
+2. 将 Column4 设为日常监控主指标，设置 0.55–0.60 的预警区间，低于阈值即触发复盘。  
+3. 基于 Column1 与 Column2 的正相关，设计 A/B 实验：提升 Column1 的输入值 10%，观察 Column2 的累计提升幅度，验证因果。
+
+数据局限与注意事项
+1. 样本仅 20 行，统计功效低，结论外推需谨慎。  
+2. 未提供列的业务含义及采集口径，解读可能存在偏差，建议补充元数据后再深入分析。</pre>
+        </section>
+        
+  </div>
+
+  <footer style="margin-top:24px;color:#9aa4c2;">
+    由 DataVizMCP 生成 · 时间 2025-09-02T07:52:48.104765+00:00
+  </footer>
+</body>
+</html>

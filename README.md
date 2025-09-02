@@ -233,5 +233,77 @@ uv run python main.py
 - 回退为 fallback：多因网络波动或接口限流；可稍后重试或提高超时。
 - 安全：文件名/路径已做隔离与校验；避免提交敏感配置与数据。
 
+### 目前功能汇总
+- 数据接入
+  - 上传 CSV 内容并以 file_id 持久化（data/{file_id}.csv）
+  - 数值列描述性统计（行数、列信息、均值/中位数/最值等）
+- 可视化
+  - visualize_barchart：静态柱状图（保留 Seaborn/Matplotlib 作为回退）
+  - visualize_interactive：交互式柱状图（Plotly，outputs/interactive/*.html）
+  - visualize_interactive_line：交互式折线图（Plotly，outputs/interactive/*.html）
+- 报告
+  - report：支持 analysis='summary'|'none'；viz.kind 支持 'interactive_barchart' 与 'interactive_linechart'；ai 可为 true 或对象（如 {'timeout_secs': 50}）
+  - export_report_html：一页式 HTML（数据摘要 + 交互式图表 + AI 洞察），输出到 outputs/reports/*.html；参数 kind 支持 'interactive_barchart' 与 'interactive_linechart'
+- AI 洞察
+  - 对接蓝耘 MaaS 模型 /maas/kimi/Kimi-K2-Instruct
+  - 超时/重试可配；开启调试（LANYUN_DEBUG=1）时将最近一次响应落盘 outputs/maas_last_response.json
+- 输出目录
+  - 交互图：outputs/interactive/*.html
+  - 整页报告：outputs/reports/*.html
+
+### 使用示例（Python）
+- 交互式柱状图
+```python
+import main, pathlib
+fid = main.upload_csv(pathlib.Path('data/sample_test_data.csv').read_text(encoding='utf-8'))['file_id']
+res = main.visualize_interactive(file_id=fid, x='Column1', y='Column2', agg='sum')
+print(res['html_path'])
+```
+
+- 交互式折线图
+```python
+import main, pathlib
+fid = main.upload_csv(pathlib.Path('data/sample_test_data.csv').read_text(encoding='utf-8'))['file_id']
+res = main.visualize_interactive_line(file_id=fid, x='Column1', y='Column2', agg='sum')
+print(res['html_path'])
+```
+
+- 一页式报告（含 AI 洞察）
+```python
+import main, pathlib
+fid = main.upload_csv(pathlib.Path('data/sample_test_data.csv').read_text(encoding='utf-8'))['file_id']
+rep = main.export_report_html(file_id=fid, x='Column1', y='Column2', agg='sum', kind='interactive_barchart', ai={'timeout_secs': 50})
+print(rep['report_path'])
+```
+
+- report（服务内聚合调用）
+```python
+import main, pathlib
+fid = main.upload_csv(pathlib.Path('data/sample_test_data.csv').read_text(encoding='utf-8'))['file_id']
+r = main.report(file_id=fid, analysis='summary', viz={'kind':'interactive_linechart','x':'Column1','y':'Column2','agg':'sum'}, ai=True)
+print(r['viz']['html_path'], r['ai_insights'].get('provider'), r['ai_insights'].get('used_fallback'))
+```
+
+### 环境变量
+- 必填
+  - LANYUN_API_KEY=你的密钥
+- 可选/默认
+  - LANYUN_MAAS_BASE_URL=https://maas-api.lanyun.net/v1
+  - LANYUN_MODEL=/maas/kimi/Kimi-K2-Instruct
+  - LANYUN_TIMEOUT_SECS=30（请求超时秒数，可调大以避免 ReadTimeout）
+  - LANYUN_RETRIES=0~3（失败重试次数）
+  - LANYUN_BACKOFF_SECS=1.5（指数退避基数）
+  - LANYUN_DEBUG=0|1（1 时落盘最近一次响应到 outputs/maas_last_response.json）
+
+### MCP 说明（SSE）
+- 传输：SSE（mcp.run(transport="sse")）
+- 工具清单（部分）
+  - upload_csv, analyze_summary
+  - visualize_barchart, visualize_interactive, visualize_interactive_line
+  - report（支持 interactive_barchart/interactive_linechart + ai）
+  - export_report_html（一页式报告导出）
+  - generate_ai_insights（AI 洞察）
+
 ## 许可证
-MIT（或按赛事要求调整）
+MIT（或按赛事要求调整）## 更新：交互式图表与 AI 洞察（v0.2）
+

@@ -18,6 +18,7 @@ from mcp.server.fastmcp import FastMCP
 from maas_client import LanyunMaaSClient, load_maas_config, DEFAULT_BASE_URL
 import plotly.express as px
 import plotly.io as pio
+from utils.interactive_line import generate_interactive_line
 
 # Prepare directories for later tools
 os.makedirs("data", exist_ok=True)
@@ -306,6 +307,41 @@ def visualize_interactive(
 
 @mcp.tool()
 @tool_guard
+def visualize_interactive_line(
+    file_id: str,
+    x: str,
+    y: str,
+    agg: str = "sum",
+    delimiter: str = ",",
+    encoding: str = "utf-8",
+    include_plotlyjs: str = "cdn",
+) -> dict:
+    """
+    Generate an interactive line chart HTML via Plotly (utils.interactive_line),
+    saved under outputs/interactive/.
+    """
+    if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
+        raise ValueError("Invalid file_id")
+    if not x or not y:
+        raise ValueError("x and y are required for linechart")
+
+    path_csv = os.path.join("data", f"{file_id}.csv")
+    if not os.path.exists(path_csv):
+        raise FileNotFoundError(f"File not found for file_id={file_id}")
+
+    res = generate_interactive_line(
+        csv_path=path_csv,
+        x=x,
+        y=y,
+        agg=agg,
+        delimiter=delimiter,
+        encoding=encoding,
+        file_id=file_id,
+    )
+    return res
+
+@mcp.tool()
+@tool_guard
 def report(
     file_id: str,
     analysis: str = "summary",
@@ -381,7 +417,7 @@ def report(
             raise ValueError("viz must be an object when provided")
 
         kind = str(viz.get("kind", "")).lower()
-        allowed_kinds = {"barchart", "interactive_barchart"}
+        allowed_kinds = {"barchart", "interactive_barchart", "interactive_linechart"}
         if kind not in allowed_kinds:
             raise ValueError(f"Unsupported viz.kind '{kind}'. Allowed: {sorted(list(allowed_kinds))}")
 
@@ -395,7 +431,7 @@ def report(
         if agg not in allowed:
             raise ValueError(f"Unsupported agg '{agg}'. Allowed: {sorted(list(allowed))}")
 
-        # figsize can be list/tuple of 2 numbers
+        # figsize can be list/tuple of 2 numbers (for static barchart only)
         figsize_val = viz.get("figsize", [8, 6])
         try:
             if isinstance(figsize_val, (list, tuple)) and len(figsize_val) == 2:
@@ -425,6 +461,22 @@ def report(
                 "params": {"x": x, "y": y, "agg": agg},
                 "html_path": inter.get("html_path"),
                 "categories": int(inter.get("categories") or 0),
+            }
+        elif kind == "interactive_linechart":
+            inter = generate_interactive_line(
+                csv_path=path_csv,
+                x=x,
+                y=y,
+                agg=agg,
+                delimiter=delimiter,
+                encoding=encoding,
+                file_id=file_id,
+            )
+            viz_out = {
+                "kind": "interactive_linechart",
+                "params": {"x": x, "y": y, "agg": agg},
+                "html_path": inter.get("html_path"),
+                "points": int(inter.get("points") or 0),
             }
         else:
             if agg == "count":
@@ -477,8 +529,10 @@ def report(
                 ai_timeout = 15.0
             ai_viz = None
             if isinstance(viz, dict):
+                vk = str(viz.get("kind", "")).lower()
+                ai_kind = "linechart" if vk == "interactive_linechart" else ("barchart" if vk in ("barchart", "interactive_barchart") else "barchart")
                 ai_viz = {
-                    "kind": "barchart",
+                    "kind": ai_kind,
                     "x": viz.get("x"),
                     "y": viz.get("y"),
                     "agg": str(viz.get("agg", "sum")).lower(),
@@ -697,6 +751,7 @@ def export_report_html(
     agg: str = "sum",
     delimiter: str = ",",
     encoding: str = "utf-8",
+    kind: str = "interactive_barchart",
     ai: bool = True,
 ) -> dict:
     """
@@ -725,6 +780,11 @@ def export_report_html(
     if y not in df.columns:
         raise ValueError(f"Column '{y}' not found")
 
+    kind_lower = str(kind).lower()
+    allowed_kinds = {"interactive_barchart", "interactive_linechart"}
+    if kind_lower not in allowed_kinds:
+        raise ValueError(f"Unsupported kind '{kind}'. Allowed: {sorted(list(allowed_kinds))}")
+
     agg_lower = str(agg).lower()
     allowed = {"sum", "mean", "median", "min", "max", "count"}
     if agg_lower not in allowed:
@@ -749,36 +809,58 @@ def export_report_html(
             }
 
     # Group and figure
-    if agg_lower == "count":
-        grouped = df.groupby(x)[y].count()
-        y_label = f"count({y})"
-    else:
-        if not pd.api.types.is_numeric_dtype(df[y]):
-            raise ValueError(f"Column '{y}' must be numeric for agg='{agg_lower}'")
-        grouped = df.groupby(x)[y].agg(agg_lower)
-        y_label = f"{agg_lower}({y})"
+    if kind_lower == "interactive_barchart":
+        if agg_lower == "count":
+            grouped = df.groupby(x)[y].count()
+            y_label = f"count({y})"
+        else:
+            if not pd.api.types.is_numeric_dtype(df[y]):
+                raise ValueError(f"Column '{y}' must be numeric for agg='{agg_lower}'")
+            grouped = df.groupby(x)[y].agg(agg_lower)
+            y_label = f"{agg_lower}({y})"
 
-    fig = px.bar(
-        x=grouped.index.astype(str),
-        y=grouped.values,
-        labels={"x": str(x), "y": y_label},
-        title=f"{y_label} by {x}",
-    )
-    fig.update_layout(margin=dict(l=40, r=20, t=60, b=40), bargap=0.2)
-    chart_html = fig.to_html(include_plotlyjs="cdn", full_html=False)
+        fig = px.bar(
+            x=grouped.index.astype(str),
+            y=grouped.values,
+            labels={"x": str(x), "y": y_label},
+            title=f"{y_label} by {x}",
+        )
+        fig.update_layout(margin=dict(l=40, r=20, t=60, b=40), bargap=0.2)
+        chart_html = fig.to_html(include_plotlyjs="cdn", full_html=False)
+
+    else:  # interactive_linechart
+        # 聚合
+        if agg_lower == "count":
+            grouped = df.groupby(x)[y].count().reset_index(name=y)
+            y_label = f"count({y})"
+        else:
+            if not pd.api.types.is_numeric_dtype(df[y]):
+                raise ValueError(f"Column '{y}' must be numeric for agg='{agg_lower}'")
+            grouped = df.groupby(x, dropna=False)[y].agg(agg_lower).reset_index()
+            y_label = f"{agg_lower}({y})"
+        # 绘制折线
+        fig = px.line(grouped, x=x, y=y, markers=True, title=f"{y_label} by {x}")
+        fig.update_layout(template="plotly_white", hovermode="x unified", margin=dict(l=40, r=20, t=60, b=40))
+        chart_html = fig.to_html(include_plotlyjs="cdn", full_html=False)
 
     # AI insights (optional)
     ai_block = None
     ai_meta = {}
     if ai:
         try:
+            ai_timeout = 30.0
+            try:
+                if isinstance(ai, dict):
+                    ai_timeout = float(ai.get("timeout_secs", ai_timeout))
+            except Exception:
+                ai_timeout = 30.0
             ai_res = generate_ai_insights(
                 file_id=file_id,
                 analysis={"row_count": row_count, "columns": columns, "numeric_stats": numeric_stats},
-                viz={"kind": "barchart", "x": x, "y": y, "agg": agg_lower},
+                viz={"kind": ("linechart" if kind_lower == "interactive_linechart" else "barchart"), "x": x, "y": y, "agg": agg_lower},
                 delimiter=delimiter,
                 encoding=encoding,
-                timeout_secs=30.0,
+                timeout_secs=ai_timeout,
             )
             if isinstance(ai_res, dict):
                 ai_block = ai_res.get("insights")
@@ -858,12 +940,13 @@ def export_report_html(
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
 
+    viz_kind = "interactive_linechart" if kind_lower == "interactive_linechart" else "barchart"
     return {
         "status": "ok",
         "file_id": file_id,
         "csv_path": csv_path,
         "report_path": out_path,
-        "viz": {"kind": "barchart", "x": x, "y": y, "agg": agg_lower},
+        "viz": {"kind": viz_kind, "x": x, "y": y, "agg": agg_lower},
         "ai_enabled": bool(ai),
     }
 
