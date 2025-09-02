@@ -23,6 +23,7 @@ import plotly.io as pio
 os.makedirs("data", exist_ok=True)
 os.makedirs("outputs", exist_ok=True)
 os.makedirs("outputs/interactive", exist_ok=True)
+os.makedirs("outputs/reports", exist_ok=True)
 
 SERVICE_NAME = "DataVizMCP"
 SERVICE_VERSION = "0.1.0"
@@ -309,13 +310,15 @@ def report(
     file_id: str,
     analysis: str = "summary",
     viz: dict | None = None,
+    ai: bool | dict = False,
     delimiter: str = ",",
     encoding: str = "utf-8",
 ) -> dict:
     """
     Orchestrate analysis and visualization for a given file_id.
     analysis: 'summary' | 'none'
-    viz: {"kind":"barchart","x":str,"y":str,"agg":"sum|mean|median|min|max|count","figsize":[w,h]} or None
+    viz: {"kind":"barchart"|"interactive_barchart","x":str,"y":str,"agg":"sum|mean|median|min|max|count","figsize":[w,h]} or None
+    ai: bool|object -> when truthy, calls AI insights and returns under 'ai_insights'
     """
     # Validate file_id and load CSV
     if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
@@ -378,8 +381,9 @@ def report(
             raise ValueError("viz must be an object when provided")
 
         kind = str(viz.get("kind", "")).lower()
-        if kind != "barchart":
-            raise ValueError(f"Unsupported viz.kind '{kind}'. Allowed: ['barchart']")
+        allowed_kinds = {"barchart", "interactive_barchart"}
+        if kind not in allowed_kinds:
+            raise ValueError(f"Unsupported viz.kind '{kind}'. Allowed: {sorted(list(allowed_kinds))}")
 
         x = viz.get("x")
         y = viz.get("y")
@@ -406,44 +410,91 @@ def report(
         if y not in df.columns:
             raise ValueError(f"Column '{y}' not found")
 
-        if agg == "count":
-            grouped = df.groupby(x)[y].count()
-            y_label = f"count({y})"
+        if kind == "interactive_barchart":
+            inter = visualize_interactive(
+                file_id=file_id,
+                kind="barchart",
+                x=x,
+                y=y,
+                agg=agg,
+                delimiter=delimiter,
+                encoding=encoding,
+            )
+            viz_out = {
+                "kind": "interactive_barchart",
+                "params": {"x": x, "y": y, "agg": agg},
+                "html_path": inter.get("html_path"),
+                "categories": int(inter.get("categories") or 0),
+            }
         else:
-            if not pd.api.types.is_numeric_dtype(df[y]):
-                raise ValueError(f"Column '{y}' must be numeric for agg='{agg}'")
-            grouped = df.groupby(x)[y].agg(agg)
-            y_label = f"{agg}({y})"
+            if agg == "count":
+                grouped = df.groupby(x)[y].count()
+                y_label = f"count({y})"
+            else:
+                if not pd.api.types.is_numeric_dtype(df[y]):
+                    raise ValueError(f"Column '{y}' must be numeric for agg='{agg}'")
+                grouped = df.groupby(x)[y].agg(agg)
+                y_label = f"{agg}({y})"
 
-        # Safe filename
-        def _safe(s: str) -> str:
-            return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(s))
+            # Safe filename
+            def _safe(s: str) -> str:
+                return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(s))
 
-        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        filename = f"{_safe(file_id)}_{_safe(x)}_{_safe(y)}_{_safe(agg)}_{ts}.png"
-        out_path = os.path.join("outputs", filename)
+            ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            filename = f"{_safe(file_id)}_{_safe(x)}_{_safe(y)}_{_safe(agg)}_{ts}.png"
+            out_path = os.path.join("outputs", filename)
 
-        # Plot
-        plt.figure(figsize=figsize)
-        sns.barplot(x=grouped.index.astype(str), y=grouped.values)
-        plt.xlabel(str(x))
-        plt.ylabel(y_label)
-        plt.title(f"{y_label} by {x}")
-        plt.tight_layout()
+            # Plot
+            plt.figure(figsize=figsize)
+            sns.barplot(x=grouped.index.astype(str), y=grouped.values)
+            plt.xlabel(str(x))
+            plt.ylabel(y_label)
+            plt.title(f"{y_label} by {x}")
+            plt.tight_layout()
 
-        try:
-            plt.savefig(out_path, dpi=150)
-        finally:
-            plt.close()
+            try:
+                plt.savefig(out_path, dpi=150)
+            finally:
+                plt.close()
 
-        viz_out = {
-            "kind": "barchart",
-            "params": {"x": x, "y": y, "agg": agg, "figsize": list(figsize)},
-            "chart_path": out_path,
-            "categories": int(len(grouped)),
-        }
+            viz_out = {
+                "kind": "barchart",
+                "params": {"x": x, "y": y, "agg": agg, "figsize": list(figsize)},
+                "chart_path": out_path,
+                "categories": int(len(grouped)),
+            }
 
     result["viz"] = viz_out
+
+    # AI insights integration (optional)
+    ai_out = None
+    if ai:
+        try:
+            ai_opts = ai if isinstance(ai, dict) else {}
+            try:
+                ai_timeout = float(ai_opts.get("timeout_secs", 15.0)) if isinstance(ai_opts, dict) else 15.0
+            except Exception:
+                ai_timeout = 15.0
+            ai_viz = None
+            if isinstance(viz, dict):
+                ai_viz = {
+                    "kind": "barchart",
+                    "x": viz.get("x"),
+                    "y": viz.get("y"),
+                    "agg": str(viz.get("agg", "sum")).lower(),
+                }
+            ai_out = generate_ai_insights(
+                file_id=file_id,
+                analysis=analysis_payload,
+                viz=ai_viz,
+                delimiter=delimiter,
+                encoding=encoding,
+                timeout_secs=ai_timeout,
+            )
+        except Exception as e:
+            ai_out = {"status": "error", "error": {"type": e.__class__.__name__, "message": str(e)}}
+
+    result["ai_insights"] = ai_out
     return result
 
 # Demo addition tool (kept)
@@ -636,6 +687,185 @@ def generate_ai_insights(
 def add(a: int, b: int) -> int:
     """Add two numbers"""
     return a + b
+
+@mcp.tool()
+@tool_guard
+def export_report_html(
+    file_id: str,
+    x: str,
+    y: str,
+    agg: str = "sum",
+    delimiter: str = ",",
+    encoding: str = "utf-8",
+    ai: bool = True,
+) -> dict:
+    """
+    Generate a full HTML report that includes:
+    - Dataset summary (rows, columns with dtypes)
+    - Interactive barchart (Plotly)
+    - AI insights (if ai=True)
+    Output saved under outputs/reports/*.html
+    """
+    if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
+        raise ValueError("Invalid file_id")
+    if not x or not y:
+        raise ValueError("x and y are required")
+
+    csv_path = os.path.join("data", f"{file_id}.csv")
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"File not found for file_id={file_id}")
+
+    try:
+        df = pd.read_csv(csv_path, sep=delimiter, encoding=encoding)
+    except Exception as e:
+        raise ValueError(f"Failed to read CSV: {e}")
+
+    if x not in df.columns:
+        raise ValueError(f"Column '{x}' not found")
+    if y not in df.columns:
+        raise ValueError(f"Column '{y}' not found")
+
+    agg_lower = str(agg).lower()
+    allowed = {"sum", "mean", "median", "min", "max", "count"}
+    if agg_lower not in allowed:
+        raise ValueError(f"Unsupported agg '{agg}'. Allowed: {sorted(list(allowed))}")
+
+    # Analysis summary
+    row_count = int(len(df))
+    columns = [{"name": str(col), "dtype": str(df[col].dtype)} for col in df.columns]
+    num_df = df.select_dtypes(include="number")
+    numeric_stats: dict = {}
+    if not num_df.empty:
+        desc = num_df.describe(include="all")
+        medians = num_df.median(numeric_only=True)
+        for col in num_df.columns:
+            numeric_stats[col] = {
+                "count": (float(desc.loc["count", col]) if "count" in desc.index and pd.notna(desc.loc["count", col]) else None),
+                "mean": (float(desc.loc["mean", col]) if "mean" in desc.index and pd.notna(desc.loc["mean", col]) else None),
+                "std": (float(desc.loc["std", col]) if "std" in desc.index and pd.notna(desc.loc["std", col]) else None),
+                "min": (float(desc.loc["min", col]) if "min" in desc.index and pd.notna(desc.loc["min", col]) else None),
+                "median": (float(medians[col]) if col in medians and pd.notna(medians[col]) else None),
+                "max": (float(desc.loc["max", col]) if "max" in desc.index and pd.notna(desc.loc["max", col]) else None),
+            }
+
+    # Group and figure
+    if agg_lower == "count":
+        grouped = df.groupby(x)[y].count()
+        y_label = f"count({y})"
+    else:
+        if not pd.api.types.is_numeric_dtype(df[y]):
+            raise ValueError(f"Column '{y}' must be numeric for agg='{agg_lower}'")
+        grouped = df.groupby(x)[y].agg(agg_lower)
+        y_label = f"{agg_lower}({y})"
+
+    fig = px.bar(
+        x=grouped.index.astype(str),
+        y=grouped.values,
+        labels={"x": str(x), "y": y_label},
+        title=f"{y_label} by {x}",
+    )
+    fig.update_layout(margin=dict(l=40, r=20, t=60, b=40), bargap=0.2)
+    chart_html = fig.to_html(include_plotlyjs="cdn", full_html=False)
+
+    # AI insights (optional)
+    ai_block = None
+    ai_meta = {}
+    if ai:
+        try:
+            ai_res = generate_ai_insights(
+                file_id=file_id,
+                analysis={"row_count": row_count, "columns": columns, "numeric_stats": numeric_stats},
+                viz={"kind": "barchart", "x": x, "y": y, "agg": agg_lower},
+                delimiter=delimiter,
+                encoding=encoding,
+                timeout_secs=30.0,
+            )
+            if isinstance(ai_res, dict):
+                ai_block = ai_res.get("insights")
+                ai_meta = {k: ai_res.get(k) for k in ("provider", "model", "used_fallback", "maas_error") if k in ai_res}
+        except Exception as e:
+            ai_block = f"[AI 生成失败] {e.__class__.__name__}: {e}"
+
+    # Safe filename
+    def _safe(s: str) -> str:
+        return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(s))
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    out_name = f"{_safe(file_id)}_report_{_safe(x)}_{_safe(y)}_{_safe(agg_lower)}_{ts}.html"
+    out_path = os.path.join("outputs", "reports", out_name)
+
+    # Build HTML
+    cols_list_html = "".join(f"<li><code>{c['name']}</code> <small>({c['dtype']})</small></li>" for c in columns)
+    stats_list_html = ""
+    if numeric_stats:
+        for col, st in list(numeric_stats.items())[:6]:
+            stats_list_html += f"<li><b>{col}</b>: min={st.get('min')}, median={st.get('median')}, mean={st.get('mean')}, max={st.get('max')}</li>"
+    ai_meta_html = ""
+    if ai_meta:
+        ai_meta_html = "<div class='meta'><small>" + " | ".join(f"{k}:{v}" for k, v in ai_meta.items() if v is not None) + "</small></div>"
+    ai_section = ""
+    if ai_block:
+        ai_section = f"""
+        <section>
+          <h2>AI 洞察</h2>
+          {ai_meta_html}
+          <pre style="white-space:pre-wrap;word-wrap:break-word;background:#0b1021;color:#e6e8f1;padding:12px;border-radius:8px;">{ai_block}</pre>
+        </section>
+        """
+
+    html = f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>数据分析报告 - {y_label} by {x}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; background:#0b0f19; color:#e6e8f1; }}
+    h1,h2 {{ font-family: Montserrat, Inter, sans-serif; }}
+    .card {{ background:#11162a; padding:16px; border-radius:12px; border:1px solid #1a2340; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }}
+    .grid {{ display:grid; grid-template-columns: 1fr; gap:16px; }}
+    @media (min-width: 900px) {{ .grid {{ grid-template-columns: 1.2fr 1fr; }} }}
+    a, code {{ color:#80b3ff; }}
+    .meta small {{ color:#9aa4c2; }}
+  </style>
+</head>
+<body>
+  <h1>数据分析报告</h1>
+  <section class="card">
+    <h2>数据概览</h2>
+    <p>文件: <code>{csv_path}</code></p>
+    <p>样本行数: <b>{row_count}</b></p>
+    <p>列：</p>
+    <ul>{cols_list_html}</ul>
+    {"<p>数值列统计（节选）</p><ul>"+stats_list_html+"</ul>" if stats_list_html else ""}
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>可视化</h2>
+      <p>{y_label} by <code>{x}</code>（分类数：{int(len(grouped))}）</p>
+      {chart_html}
+    </section>
+    {ai_section}
+  </div>
+
+  <footer style="margin-top:24px;color:#9aa4c2;">
+    由 DataVizMCP 生成 · 时间 {datetime.now(timezone.utc).isoformat()}
+  </footer>
+</body>
+</html>"""
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    return {
+        "status": "ok",
+        "file_id": file_id,
+        "csv_path": csv_path,
+        "report_path": out_path,
+        "viz": {"kind": "barchart", "x": x, "y": y, "agg": agg_lower},
+        "ai_enabled": bool(ai),
+    }
 
 
 # Demo dynamic greeting resource (kept)
