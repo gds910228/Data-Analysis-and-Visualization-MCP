@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.uv/
+.env
+.env.*
+*.egg-info/
+
+# Project outputs
+outputs/*.png
+outputs/interactive/*.html
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Misc
+.DS_Store
+Thumbs.db
