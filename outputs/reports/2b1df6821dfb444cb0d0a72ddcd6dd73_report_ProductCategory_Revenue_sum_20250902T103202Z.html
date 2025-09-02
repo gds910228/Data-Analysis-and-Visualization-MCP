@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>数据分析报告 - sum(Revenue) by ProductCategory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; background:#0b0f19; color:#e6e8f1; }
+    h1,h2 { font-family: Montserrat, Inter, sans-serif; }
+    .card { background:#11162a; padding:16px; border-radius:12px; border:1px solid #1a2340; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+    .grid { display:grid; grid-template-columns: 1fr; gap:16px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1.2fr 1fr; } }
+    a, code { color:#80b3ff; }
+    .meta small { color:#9aa4c2; }
+  </style>
+</head>
+<body>
+  <h1>数据分析报告</h1>
+  <section class="card">
+    <h2>数据概览</h2>
+    <p>文件: <code>data\2b1df6821dfb444cb0d0a72ddcd6dd73.csv</code></p>
+    <p>样本行数: <b>30</b></p>
+    <p>列：</p>
+    <ul><li><code>OrderID</code> <small>(object)</small></li><li><code>OrderDate</code> <small>(object)</small></li><li><code>CustomerID</code> <small>(object)</small></li><li><code>CustomerName</code> <small>(object)</small></li><li><code>Region</code> <small>(object)</small></li><li><code>City</code> <small>(object)</small></li><li><code>SalesChannel</code> <small>(object)</small></li><li><code>PaymentMethod</code> <small>(object)</small></li><li><code>ProductCategory</code> <small>(object)</small></li><li><code>Product</code> <small>(object)</small></li><li><code>UnitPrice</code> <small>(float64)</small></li><li><code>Quantity</code> <small>(int64)</small></li><li><code>Discount</code> <small>(float64)</small></li><li><code>Revenue</code> <small>(float64)</small></li></ul>
+    <p>数值列统计（节选）</p><ul><li><b>UnitPrice</b>: min=1.5, median=70.0, mean=192.31666666666666, max=1200.0</li><li><b>Quantity</b>: min=1.0, median=2.0, mean=3.466666666666667, max=25.0</li><li><b>Discount</b>: min=0.0, median=0.05, mean=0.06666666666666668, max=0.2</li><li><b>Revenue</b>: min=18.0, median=92.5, mean=235.06166666666667, max=1520.0</li></ul>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>可视化</h2>
+      <p>sum(Revenue) by <code>ProductCategory</code>（分类数：5）</p>
+      <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="27620ac9-8b88-4397-abff-a05de009a95b" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("27620ac9-8b88-4397-abff-a05de009a95b")) {                    Plotly.newPlot(                        "27620ac9-8b88-4397-abff-a05de009a95b",                        [{"hovertemplate":"ProductCategory=%{x}\u003cbr\u003esum(Revenue)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":["Apparel","Beauty","Electronics","Grocery","Home"],"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAABYg0AAAAAAAPhoQJqZmZkZSbRAAAAAAADgYkAAAAAAAMiLQA=="},"yaxis":"y","type":"bar"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"ProductCategory"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"sum(Revenue)"}},"legend":{"tracegroupgap":0},"title":{"text":"sum(Revenue) by ProductCategory"},"barmode":"relative","margin":{"l":40,"r":20,"t":60,"b":40},"bargap":0.2},                        {"responsive": true}                    )                };            </script>        </div>
+    </section>
+    
+        <section>
+          <h2>AI 洞察</h2>
+          <div class='meta'><small>provider:lanyun-maas | model:/maas/kimi/Kimi-K2-Instruct | used_fallback:False</small></div>
+          <pre style="white-space:pre-wrap;word-wrap:break-word;background:#0b1021;color:#e6e8f1;padding:12px;border-radius:8px;">关键结论  
+1. 收入高度集中于 Electronics（5193，≈77%），Home 与 Apparel 合计不足 20%，品类结构单一。  
+2. 平均折扣仅 6.7%，但 Electronics 折扣区间 0–20%，存在“高客单+低折扣”空间，可进一步测试折扣弹性。  
+3. 订单量均值 3.5 件，中位数 2 件，呈右偏，说明少数大单拉高均值，可针对大单客户做深度运营。  
+4. 单价跨度极大（1.5–1200），高价 SKU 集中在 Electronics，需关注库存与毛利风险。  
+
+可执行建议  
+1. 对 Electronics 设置 A/B 折扣实验：在 5%、10%、15% 三档中测试转化与利润变化，周期 2 周。  
+2. 建立“大单客户”标签：筛选 Quantity≥10 或 Revenue≥500 的客户，推送专属优惠或会员权益。  
+3. 对 Home、Apparel 做交叉捆绑：将低销品类与 Electronics 热销品组合套餐，提升连带率。  
+
+数据局限与注意事项  
+- 样本仅 30 行，结论可能受极值影响，需后续扩大样本验证。  
+- 缺少成本、退货、库存字段，无法计算真实毛利与缺货风险。</pre>
+        </section>
+        
+  </div>
+
+  <footer style="margin-top:24px;color:#9aa4c2;">
+    由 DataVizMCP 生成 · 时间 2025-09-02T10:32:02.323283+00:00
+  </footer>
+</body>
+</html>

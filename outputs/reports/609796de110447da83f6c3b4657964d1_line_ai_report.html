@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sample Sales - 按日期营收折线图 AI 报告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; margin: 0; padding: 24px; color: #111827; background: #fafafa; }
+  .container { max-width: 1080px; margin: 0 auto; }
+  header h1 { margin: 0 0 4px; font-size: 24px; }
+  header p { margin: 0 0 16px; color: #6b7280; }
+  section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; margin: 14px 0; }
+  h2 { font-size: 16px; margin: 0 0 10px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 8px 16px; font-size: 14px; color: #374151; }
+  .code { background: #f3f4f6; padding: 10px 12px; border-radius: 8px; border: 1px solid #e5e7eb; overflow: auto; font-size: 13px; }
+  iframe { width: 100%; height: 560px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+  footer { color: #6b7280; font-size: 12px; margin-top: 8px; text-align: right; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sample Sales - 按日期营收折线图 AI 报告</h1>
+      <p>数据源：data/sample_sales.csv · 可视化：按 OrderDate 汇总 Revenue（sum） · 图表类型：交互式折线图</p>
+    </header>
+
+    <section id="overview">
+      <h2>数据概览</h2>
+      <div class="meta">
+        <div>记录数：30</div>
+        <div>字段数：14</div>
+        <div>时间字段：OrderDate</div>
+        <div>度量字段：Revenue（float）</div>
+        <div>聚合方式：sum（按日）</div>
+      </div>
+      <div class="code" style="margin-top:10px">
+        <strong>字段与类型：</strong><br>
+        OrderID (object), OrderDate (object), CustomerID (object), CustomerName (object), Region (object), City (object), SalesChannel (object), PaymentMethod (object), ProductCategory (object), Product (object), UnitPrice (float64), Quantity (int64), Discount (float64), Revenue (float64)
+      </div>
+    </section>
+
+    <section id="chart">
+      <h2>交互式折线图（Revenue · 日汇总）</h2>
+      <iframe src="../interactive/609796de110447da83f6c3b4657964d1_line_OrderDate_Revenue_sum_20250902T111723Z.html" loading="lazy"></iframe>
+    </section>
+
+    <section id="insights">
+      <h2>AI 洞察</h2>
+      <div class="code"><pre style="white-space:pre-wrap;margin:0">结论：
+- UnitPrice 平均值约为 192.31666666666666, 波动(Std) 336.087695948269, 范围 [1.5, 1200.0]。
+- Quantity 平均值约为 3.466666666666667, 波动(Std) 5.110727954986946, 范围 [1.0, 25.0]。
+- Discount 平均值约为 0.06666666666666668, 波动(Std) 0.06864869757075454, 范围 [0.0, 0.2]。
+
+建议：
+- 建议补充时间维度或关键分群字段，以获得更具可解释性的趋势与对比。
+- 设定统一的数据清洗规则（缺失值、异常值）以保证分析口径一致。
+- 引入交互式分析（筛选、联动）以支持业务决策讨论。
+
+注意：
+- 样本可能不具有统计代表性，请谨慎外推结论。
+- 字段含义与口径未统一时，指标对比可能失真。</pre></div>
+    </section>
+
+    <footer>生成时间：2025-09-02 19:00 (Asia/Shanghai)</footer>
+  </div>
+</body>
+</html>

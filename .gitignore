@@ -11,6 +11,7 @@ __pycache__/
 
 # Project outputs
 outputs/*.png
+outputs/*.html
 outputs/interactive/*.html
 
 # IDE/editor
@@ -21,3 +22,7 @@ outputs/interactive/*.html
 # Misc
 .DS_Store
 Thumbs.db
+
+# Doc
+data/*.xlsx
+data/*.csv
