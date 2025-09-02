@@ -83,7 +83,10 @@ def generate_interactive_line(
     if not p.exists():
         raise FileNotFoundError(f"CSV not found: {csv_path}")
 
-    df = pd.read_csv(p, delimiter=delimiter, encoding=encoding)
+    if p.suffix.lower() == ".xlsx":
+        df = pd.read_excel(p, sheet_name=0, engine="openpyxl")
+    else:
+        df = pd.read_csv(p, delimiter=delimiter, encoding=encoding)
 
     if x not in df.columns or y not in df.columns:
         raise ValueError(f"Columns not found. x={x}, y={y}, columns={list(df.columns)}")

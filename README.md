@@ -3,11 +3,11 @@
 专注于特定领域的 MCP 服务器，可将 CSV 数据快速转化为洞察和图表。基于 Python FastMCP、Pandas、Seaborn、Matplotlib 与 Plotly 构建；AI 洞察对接蓝耘 MaaS（/maas/kimi/Kimi-K2-Instruct）。
 
 - 传输方式：服务器发送事件（SSE）
-- 工具（核心）：health、upload_csv、analyze_summary、visualize_barchart、visualize_interactive、report、generate_ai_insights、export_report_html
+- 工具（核心）：health、upload_csv、upload_excel、analyze_summary、visualize_barchart、visualize_interactive、report、generate_ai_insights、export_report_html
 - 输出格式：JSON（分析/洞察）+ PNG（静态图）+ HTML（交互图/整页报告）
 
 ## 功能
-- 上传 CSV 内容并以 ID 形式持久化存储
+- 上传 CSV/Excel（.xlsx）内容并以 ID 形式持久化存储（自动识别 .csv/.xlsx；Excel 默认读取首个工作表）
 - 数值列的描述性统计分析
 - 可视化：
   - 静态柱状图（PNG，Matplotlib/Seaborn）
@@ -207,7 +207,7 @@ uv run python main.py
 .
 ├─ main.py                 # FastMCP 服务器及工具
 ├─ maas_client.py          # 蓝耘 MaaS 客户端封装（/chat/completions）
-├─ data/                   # 上传 CSV（运行时生成）
+├─ data/                   # 上传 CSV/Excel（运行时生成）
 ├─ outputs/
 │  ├─ *.png                # 静态图
 │  ├─ interactive/*.html   # 交互式图表

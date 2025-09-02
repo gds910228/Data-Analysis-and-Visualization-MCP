@@ -4,7 +4,6 @@
   - [ ] report.viz.kind 支持：interactive_piechart
   - [ ] export_report_html 支持饼图渲染
 - [ ] 更多数据源
-  - [ ] Excel（.xlsx）
   - [ ] JSON（records/columns）
 - [ ] 安全与错误处理强化
   - [ ] 输入校验（文件大小/行数/列名/类型）
@@ -18,11 +17,8 @@
 - [ ] 交互式饼图：设计与实现（工具→report→export_report_html）
 
 ## Done
-- [x] 交互式柱状图（Plotly）
-- [x] 交互式折线图（Plotly）+ 时间轴判定修复（数值列不误判为时间戳）
-- [x] 新工具：visualize_interactive_line
-- [x] report 集成：viz.kind=interactive_linechart + ai 参数超时可配
-- [x] export_report_html：整页报告（摘要+交互图+AI洞察），支持 barchart/linechart
-- [x] 蓝耘 MaaS 接入（/maas/kimi/Kimi-K2-Instruct）：超时/重试（可配）+ 调试落盘
-- [x] e2e 冒烟与报告验证（provider=lanyun-maas, fallback=false）
-- [x] README：补充 report/export_report_html 示例与环境变量说明
+- [x] 更多数据源：Excel（.xlsx）支持（upload_excel + 自动识别 .csv/.xlsx）
+- [x] 折线/柱状图支持从 .xlsx 读取（utils/interactive_line.py 适配）
+- [x] 依赖：新增 openpyxl
+- [x] README：补充 Excel 数据源支持与示例
+- [x] 脚本：Excel 测试数据与测试脚本（scripts/gen_excel_sample.py, scripts/test_excel_pipeline.py，含 AI 洞察）

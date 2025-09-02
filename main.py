@@ -10,6 +10,7 @@ import platform
 import uuid
 from datetime import datetime, timezone
 from functools import wraps
+import base64
 
 import pandas as pd
 import seaborn as sns
@@ -31,6 +32,32 @@ SERVICE_VERSION = "0.1.0"
 
 # Create an MCP server
 mcp = FastMCP(SERVICE_NAME)
+
+# Helper utilities to support both CSV and Excel sources
+def _resolve_data_path(file_id: str) -> tuple[str, str]:
+    if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
+        raise ValueError("Invalid file_id")
+    path_csv = os.path.join("data", f"{file_id}.csv")
+    path_xlsx = os.path.join("data", f"{file_id}.xlsx")
+    if os.path.exists(path_csv):
+        return path_csv, "csv"
+    if os.path.exists(path_xlsx):
+        return path_xlsx, "xlsx"
+    raise FileNotFoundError(f"File not found for file_id={file_id}")
+
+def _load_df(file_id: str, delimiter: str = ",", encoding: str = "utf-8", sheet_name: int | str | None = None) -> tuple[pd.DataFrame, str]:
+    path, kind = _resolve_data_path(file_id)
+    if kind == "csv":
+        try:
+            df = pd.read_csv(path, sep=delimiter, encoding=encoding)
+        except Exception as e:
+            raise ValueError(f"Failed to read CSV: {e}")
+    else:
+        try:
+            df = pd.read_excel(path, sheet_name=sheet_name if sheet_name is not None else 0, engine="openpyxl")
+        except Exception as e:
+            raise ValueError(f"Failed to read Excel: {e}")
+    return df, path
 
 def tool_guard(fn):
     @wraps(fn)
@@ -91,6 +118,35 @@ def upload_csv(data: str, delimiter: str = ",", encoding: str = "utf-8") -> dict
         "encoding": encoding,
     }
 
+@mcp.tool()
+@tool_guard
+def upload_excel(data_base64: str, encoding: str = "utf-8") -> dict:
+    """
+    Save a base64-encoded Excel (.xlsx) to data/{file_id}.xlsx and return identifiers.
+    """
+    if not isinstance(data_base64, str) or len(data_base64.strip()) == 0:
+        raise ValueError("Empty Excel data")
+    try:
+        raw = base64.b64decode(data_base64)
+    except Exception as e:
+        raise ValueError(f"Invalid base64: {e}")
+
+    file_id = uuid.uuid4().hex
+    filename = f"{file_id}.xlsx"
+    path = os.path.join("data", filename)
+    with open(path, "wb") as f:
+        f.write(raw)
+
+    size = os.path.getsize(path)
+    return {
+        "status": "saved",
+        "file_id": file_id,
+        "path": path,
+        "size_bytes": size,
+        "encoding": encoding,
+        "format": "xlsx",
+    }
+
 
 @mcp.tool()
 @tool_guard
@@ -98,19 +154,8 @@ def analyze_summary(file_id: str, delimiter: str = ",", encoding: str = "utf-8")
     """
     Load data/{file_id}.csv and return row_count, columns, and numeric statistics.
     """
-    if not isinstance(file_id, str) or len(file_id.strip()) == 0:
-        raise ValueError("Invalid file_id")
-    if any(c in file_id for c in ("/", "\\", "..")):
-        raise ValueError("Invalid file_id")
-
-    path = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(path, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    # Resolve dataset path (.csv or .xlsx) and load
+    df, path = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     row_count = int(len(df))
     columns = [{"name": str(col), "dtype": str(df[col].dtype)} for col in df.columns]
@@ -161,14 +206,7 @@ def visualize_barchart(
     if not x or not y:
         raise ValueError("x and y are required")
 
-    path_csv = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path_csv):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(path_csv, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    df, data_path = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     if x not in df.columns:
         raise ValueError(f"Column '{x}' not found")
@@ -216,7 +254,7 @@ def visualize_barchart(
     return {
         "status": "ok",
         "file_id": file_id,
-        "csv_path": path_csv,
+        "csv_path": data_path,
         "chart_path": out_path,
         "x": x,
         "y": y,
@@ -249,14 +287,7 @@ def visualize_interactive(
         if not x or not y:
             raise ValueError("x and y are required for barchart")
 
-    path_csv = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path_csv):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(path_csv, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    df, path_csv = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     def _safe(s: str) -> str:
         return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in str(s))
@@ -325,12 +356,9 @@ def visualize_interactive_line(
     if not x or not y:
         raise ValueError("x and y are required for linechart")
 
-    path_csv = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path_csv):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
+    _, data_path = _load_df(file_id, delimiter=delimiter, encoding=encoding)
     res = generate_interactive_line(
-        csv_path=path_csv,
+        csv_path=data_path,
         x=x,
         y=y,
         agg=agg,
@@ -360,14 +388,7 @@ def report(
     if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
         raise ValueError("Invalid file_id")
 
-    path_csv = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path_csv):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(path_csv, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    df, path_csv = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     result: dict = {
         "status": "ok",
@@ -573,14 +594,7 @@ def generate_ai_insights(
     if not isinstance(file_id, str) or len(file_id.strip()) == 0 or any(c in file_id for c in ("/", "\\", "..")):
         raise ValueError("Invalid file_id")
 
-    path_csv = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(path_csv):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(path_csv, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    df, path_csv = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     # Prepare analysis payload if not provided
     if analysis is None:
@@ -766,14 +780,7 @@ def export_report_html(
     if not x or not y:
         raise ValueError("x and y are required")
 
-    csv_path = os.path.join("data", f"{file_id}.csv")
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"File not found for file_id={file_id}")
-
-    try:
-        df = pd.read_csv(csv_path, sep=delimiter, encoding=encoding)
-    except Exception as e:
-        raise ValueError(f"Failed to read CSV: {e}")
+    df, csv_path = _load_df(file_id, delimiter=delimiter, encoding=encoding)
 
     if x not in df.columns:
         raise ValueError(f"Column '{x}' not found")
